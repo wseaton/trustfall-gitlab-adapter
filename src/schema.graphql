@@ -1,0 +1,28 @@
+schema {
+  query: Query
+}
+
+type Query {
+  UserGitlabRepos(language: String): UserGitlabRepos
+}
+
+type UserGitlabRepos {
+  # edges
+  repos: [GitlabRepo!]!
+}
+
+type GitlabRepo {
+  # props
+  url: String!
+  id: String!
+
+  # edges
+  files(ref: String!, path: String): [RepoFile!]!
+}
+
+type RepoFile {
+  # props
+
+  path: String!
+  content: String!
+}
