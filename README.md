@@ -1,0 +1,1 @@
+# trustfall-gitlab-adapter
