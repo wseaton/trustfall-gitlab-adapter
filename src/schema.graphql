@@ -15,7 +15,8 @@ type GitlabRepo {
   # props
   url: String!
   id: String!
-
+  name: String!
+  description: String!
   # edges
   files(ref: String!, path: String): [RepoFile!]!
 }

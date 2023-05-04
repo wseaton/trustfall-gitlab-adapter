@@ -64,13 +64,13 @@ impl GitlabAdapter {
             .query(&*GITLAB_CLIENT)
             .expect("Failed to get all projects");
 
-        println!("pjs: {:?}", pjs.len());
-
         let mut vertices = Vec::new();
         for pj in pjs {
             vertices.push(Vertex::GitlabRepo(GitlabRepo {
                 id: pj.id.to_string(),
                 url: pj.http_url_to_repo,
+                name: pj.name,
+                description: pj.description.unwrap_or(String::new()),
                 repo_files: Vec::new(),
             }));
         }
@@ -107,7 +107,6 @@ impl GitlabAdapter {
                     match file.type_ {
                         ObjectType::Tree => continue,
                         ObjectType::Blob => {
-                            println!("Getting raw contents for file: {:?}", file);
                             let mut raw_fb = FileRawBuilder::default();
                             raw_fb.project(id.clone()).file_path(file.path.clone());
 
@@ -120,7 +119,6 @@ impl GitlabAdapter {
                             .expect("Failed to get raw file contents, does this file exit on the branch?");
 
                             let content = String::from_utf8(contents).unwrap();
-                            println!("content: {:?}", content);
 
                             nodes.push(RepoFile {
                                 path: file.path,
@@ -245,6 +243,9 @@ impl BasicAdapter<'static> for GitlabAdapter {
             })),
 
             ("GitlabRepo", "url") => impl_property!(contexts, as_gitlab_repo, url),
+            ("GitlabRepo", "id") => impl_property!(contexts, as_gitlab_repo, id),
+            ("GitlabRepo", "name") => impl_property!(contexts, as_gitlab_repo, name),
+            ("GitlabRepo", "description") => impl_property!(contexts, as_gitlab_repo, description),
             ("RepoFile", "path") => impl_property!(contexts, as_repo_file, path),
             ("RepoFile", "content") => impl_property!(contexts, as_repo_file, content),
 
@@ -274,7 +275,6 @@ impl BasicAdapter<'static> for GitlabAdapter {
 
                 let edge_resolver =
                     move |vertex: &Self::Vertex| -> VertexIterator<'static, Self::Vertex> {
-                        println!("Processing vertex: {}", vertex.typename());
                         let _repo = vertex.as_repo_list();
                         // here is where we would use information sitting on the UserGitlabRepos object
                         // to do edge resolution, in our case though we only care about params since it is the root node
