@@ -65,7 +65,9 @@ pub struct UserGitlabRepos {
 pub struct GitlabRepo {
     pub id: String,
     pub url: String,
+    pub description: String,
     pub repo_files: Vec<Rc<RepoFile>>,
+    pub name: String,
 }
 
 #[derive(Debug, Clone)]

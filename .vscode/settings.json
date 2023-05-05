@@ -1,0 +1,10 @@
+{
+    "rust-analyzer.runnableEnv": {
+        "GITLAB_API_TOKEN": "",
+        "GITLAB_HOST": ""
+    },
+    "rust-analyzer.runnables.extraArgs": [
+        "query",
+        "src/sample_query.graphql"
+    ]
+}

@@ -1,0 +1,13 @@
+query {
+  UserGitlabRepos {
+    repos {
+      url @output
+      id @output
+      name @output
+      description @output
+      files(ref: "main") {
+        path @output
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Debug with ",
+        "cargo": {
+          "args": [
+              "build",
+              "--bin=trustfall-gitlab-adapter",
+              "--package=trustfall-gitlab-adapter"
+          ],
+          "filter": {
+              "name": "trustfall-gitlab-adapter",
+              "kind": "bin"
+          }
+        },
+        "args": ["query", "src/sample_query.graphql"],
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "GITLAB_API_TOKEN": "",
+          "GITLAB_HOST": ""
+        }
+      }
+    ]
+  }
