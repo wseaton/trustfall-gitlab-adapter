@@ -35,14 +35,11 @@ struct InputQuery<'a> {
 }
 
 fn execute_query(path: &str) {
-    let mut args = BTreeMap::new();
-
+    
     let content = fs::read_to_string(path).unwrap();
 
-    let input_query: InputQuery = InputQuery {
-        query: &content,
-        args,
-    };
+    let input_query: InputQuery = ron::from_str(&content).unwrap();
+
 
     let adapter = Rc::new(GitlabAdapter::new());
 

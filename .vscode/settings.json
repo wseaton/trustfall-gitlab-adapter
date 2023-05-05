@@ -5,6 +5,6 @@
     },
     "rust-analyzer.runnables.extraArgs": [
         "query",
-        "src/sample_query.graphql"
+        "contents-of-filtered-files.ron"
     ]
 }

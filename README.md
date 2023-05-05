@@ -32,7 +32,7 @@ export GITLAB_HOST="< ... your Gitlab host goes here ... >"
 
 You are now ready to run the demo code:
 ```bash
-cargo run --release query src/sample_query.graphql
+cargo run --release query contents-of-filtered-files.ron
 ```
 
 ## Debugging

@@ -1,0 +1,22 @@
+InputQuery (
+    query: r#"
+{
+  UserGitlabRepos {
+    repos {
+      url @output @filter(op: "regex", value: ["$url_regex"])
+      id @output
+      name @output
+      description @output
+      files(ref: "main") {
+        path @output @filter(op: "regex", value: ["$path_regex"])
+        content @output
+      }
+    }
+  }
+}"#,
+    args: {
+        "url_regex": String("test"),
+        "path_regex": String("README"),
+    },
+)
+
