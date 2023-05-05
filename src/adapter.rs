@@ -60,7 +60,7 @@ impl GitlabAdapter {
 
         let projects = pb.build().unwrap();
 
-        let pjs: Vec<Project> = paged(projects, gitlab::api::Pagination::Limit(50))
+        let pjs: Vec<Project> = paged(projects, gitlab::api::Pagination::Limit(20))
             .query(&*GITLAB_CLIENT)
             .expect("Failed to get all projects");
 
@@ -118,11 +118,11 @@ impl GitlabAdapter {
                             let contents =    raw(fbe).query(&*GITLAB_CLIENT)
                             .expect("Failed to get raw file contents, does this file exit on the branch?");
 
-                            let content = String::from_utf8(contents).unwrap();
+                            let content = String::from_utf8_lossy(contents.as_slice());
 
                             nodes.push(RepoFile {
                                 path: file.path,
-                                content,
+                                content: content.to_string(),
                             });
                         }
                     }
@@ -210,7 +210,7 @@ impl BasicAdapter<'static> for GitlabAdapter {
             .unwrap_or(None);
 
         match edge_name {
-            "UserGitlabRepos" => GitlabAdapter::get_gitlab_repos(language),
+            "GitlabRepos" => GitlabAdapter::get_gitlab_repos(language),
             _ => unreachable!("unknown starting edge name: {}", edge_name),
         }
     }
@@ -263,26 +263,26 @@ impl BasicAdapter<'static> for GitlabAdapter {
         print!("type_name: {}, edge_name: {}", type_name, edge_name);
 
         match (type_name, edge_name) {
-            ("UserGitlabRepos", "repos") => {
-                let language = parameters
-                    .get("language")
-                    .map(|v| match v {
-                        FieldValue::String(s) => Some(s.clone()),
-                        FieldValue::Null => None,
-                        _ => unreachable!(),
-                    })
-                    .unwrap_or(None);
+            // ("UserGitlabRepos", "repos") => {
+            //     let language = parameters
+            //         .get("language")
+            //         .map(|v| match v {
+            //             FieldValue::String(s) => Some(s.clone()),
+            //             FieldValue::Null => None,
+            //             _ => unreachable!(),
+            //         })
+            //         .unwrap_or(None);
 
-                let edge_resolver =
-                    move |vertex: &Self::Vertex| -> VertexIterator<'static, Self::Vertex> {
-                        let _repo = vertex.as_repo_list();
-                        // here is where we would use information sitting on the UserGitlabRepos object
-                        // to do edge resolution, in our case though we only care about params since it is the root node
-                        Box::new(GitlabAdapter::get_gitlab_repos(language.clone()))
-                    };
+            //     let edge_resolver =
+            //         move |vertex: &Self::Vertex| -> VertexIterator<'static, Self::Vertex> {
+            //             let _repo = vertex.as_repo_list();
+            //             // here is where we would use information sitting on the UserGitlabRepos object
+            //             // to do edge resolution, in our case though we only care about params since it is the root node
+            //             Box::new(GitlabAdapter::get_gitlab_repos(language.clone()))
+            //         };
 
-                resolve_neighbors_with(contexts, edge_resolver)
-            }
+            //     resolve_neighbors_with(contexts, edge_resolver)
+            // }
             ("GitlabRepo", "files") => {
                 let ref_ = parameters
                     .get("ref")

@@ -1,14 +1,10 @@
 schema {
-  query: Query
+  query: RootSchemaQuery
 }
 
-type Query {
-  UserGitlabRepos(language: String): UserGitlabRepos
-}
-
-type UserGitlabRepos {
+type RootSchemaQuery {
   # edges
-  repos: [GitlabRepo!]!
+  GitlabRepos(language: String): [GitlabRepo!]!
 }
 
 type GitlabRepo {

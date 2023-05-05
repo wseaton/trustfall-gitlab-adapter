@@ -6,7 +6,7 @@ use trustfall_core::interpreter::Typename;
 #[derive(Debug, Clone)]
 pub enum Vertex {
     // ...
-    UserGitlabRepos(UserGitlabRepos),
+    RootGitlabRepos(RootGitlabRepos),
     GitlabRepo(GitlabRepo),
     RepoFile(Rc<RepoFile>),
 }
@@ -14,7 +14,7 @@ pub enum Vertex {
 impl Typename for Vertex {
     fn typename(&self) -> &'static str {
         match self {
-            Vertex::UserGitlabRepos(..) => "UserGitlabRepos",
+            Vertex::RootGitlabRepos(..) => "RootGitlabRepos",
             Vertex::GitlabRepo(..) => "GitlabRepo",
             Vertex::RepoFile(..) => "RepoFile",
         }
@@ -36,9 +36,9 @@ impl Vertex {
         }
     }
 
-    pub fn as_repo_list(&self) -> Option<&UserGitlabRepos> {
+    pub fn as_repo_list(&self) -> Option<&RootGitlabRepos> {
         match self {
-            Self::UserGitlabRepos(repos) => Some(repos),
+            Self::RootGitlabRepos(repos) => Some(repos),
             _ => None,
         }
     }
@@ -57,7 +57,7 @@ impl From<RepoFile> for Vertex {
 }
 
 #[derive(Debug, Clone)]
-pub struct UserGitlabRepos {
+pub struct RootGitlabRepos {
     pub repos: Vec<GitlabRepo>,
 }
 

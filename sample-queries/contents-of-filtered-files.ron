@@ -1,9 +1,8 @@
 InputQuery (
     query: r#"
 {
-  UserGitlabRepos {
-    repos {
-      url @output @filter(op: "regex", value: ["$url_regex"])
+  GitlabRepos(language: "python") {
+      url @output
       id @output
       name @output
       description @output
@@ -12,11 +11,10 @@ InputQuery (
         content @output
       }
     }
-  }
 }"#,
     args: {
-        "url_regex": String("test"),
-        "path_regex": String("README"),
+        // "url_regex": String("test"),
+        "path_regex": String("requirements.txt"),
     },
 )
 
