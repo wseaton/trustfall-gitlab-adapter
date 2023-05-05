@@ -4,7 +4,7 @@
       {
         "type": "lldb",
         "request": "launch",
-        "name": "Debug with ",
+        "name": "Debug trustfall-gitlab-adapter",
         "cargo": {
           "args": [
               "build",
@@ -16,7 +16,7 @@
               "kind": "bin"
           }
         },
-        "args": ["query", "src/sample_query.graphql"],
+        "args": ["query", "sample-queries/contents-of-filtered-files.ron"],
         "cwd": "${workspaceFolder}",
         "env": {
           "GITLAB_API_TOKEN": "",
