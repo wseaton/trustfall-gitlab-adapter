@@ -39,15 +39,6 @@ impl Default for GitlabAdapter {
     }
 }
 
-#[derive(Debug, Clone)]
-
-pub struct GitlabProjectsGetParams {
-    pub language: Option<String>,
-    pub membership: Option<bool>,
-    pub last_activity_after: Option<DateTime<Utc>>,
-    pub last_activity_before: Option<DateTime<Utc>>,
-}
-
 macro_rules! extract_string_param {
     ($obj:expr, $param:expr) => {
         $obj.get($param)
@@ -76,7 +67,14 @@ macro_rules! extract_dt_param {
     ($obj:expr, $param:expr) => {
         $obj.get($param)
             .map(|v| match v {
-                FieldValue::DateTimeUtc(s) => Some(s),
+                // note: this needs to be clone to solve lifetime issues arising
+                // from the generic nature of FieldValue and the fact we need to parse
+                FieldValue::DateTimeUtc(s) => Some(s.clone()),
+                FieldValue::String(s) => Some(
+                    DateTime::parse_from_rfc3339(s)
+                        .map(|dt| dt.with_timezone(&Utc))
+                        .unwrap(),
+                ),
                 FieldValue::Null => None,
                 _ => unreachable!(),
             })
@@ -84,8 +82,22 @@ macro_rules! extract_dt_param {
     };
 }
 
+#[derive(Debug, Clone)]
+
+pub struct GitlabProjectsGetParams {
+    pub query_string: Option<String>,
+    pub search_namespaces: Option<bool>,
+    pub language: Option<String>,
+    pub membership: Option<bool>,
+    pub last_activity_after: Option<DateTime<Utc>>,
+    pub last_activity_before: Option<DateTime<Utc>>,
+}
+
 impl From<&EdgeParameters> for GitlabProjectsGetParams {
     fn from(p: &EdgeParameters) -> Self {
+        let query_string = extract_string_param!(p, "query");
+        let search_namespaces = extract_bool_param!(p, "search_namespaces");
+
         let language = extract_string_param!(p, "language");
         let membership = extract_bool_param!(p, "membership");
 
@@ -93,10 +105,12 @@ impl From<&EdgeParameters> for GitlabProjectsGetParams {
         let last_activity_after = extract_dt_param!(p, "last_activity_after");
 
         Self {
+            query_string,
+            search_namespaces,
             language,
             membership,
-            last_activity_after: last_activity_after.copied(),
-            last_activity_before: last_activity_before.copied(),
+            last_activity_after,
+            last_activity_before,
         }
     }
 }
@@ -110,6 +124,14 @@ impl GitlabAdapter {
     /// hence the `if let Some` statements
     pub fn build_projects_builder(params: GitlabProjectsGetParams) -> ProjectsBuilder<'static> {
         let mut pb = ProjectsBuilder::default();
+
+        if let Some(query_string) = params.query_string {
+            let pb = pb.search(query_string);
+        }
+
+        if let Some(search_namespaces) = params.search_namespaces {
+            let pb = pb.search_namespaces(search_namespaces);
+        }
 
         if let Some(lang) = params.language {
             let pb = pb.with_programming_language(lang);
@@ -134,7 +156,7 @@ impl GitlabAdapter {
         &self,
         params: GitlabProjectsGetParams,
     ) -> VertexIterator<'static, Vertex> {
-        println!("Getting gitlab repos!");
+        println!("Getting gitlab repos w/ params: {:?}", &params);
         let pb = Self::build_projects_builder(params);
 
         let projects = pb.build().unwrap();
@@ -264,6 +286,8 @@ impl BasicAdapter<'static> for GitlabAdapter {
         }
     }
 
+    /// #TODO: currently not needed in our schema, but may need to implement once we
+    /// have edges that need to be joined
     fn resolve_coercion(
         &self,
         contexts: ContextIterator<'static, Self::Vertex>,

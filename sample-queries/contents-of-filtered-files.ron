@@ -1,7 +1,7 @@
 InputQuery (
     query: r#"
 {
-  GitlabRepos(language: "python") {
+  GitlabRepos(last_activity_after: "2023-01-01T12:00:00.000Z") {
       url @output
       id @output
       name @output
