@@ -1317,6 +1317,7 @@ name = "trustfall-gitlab-adapter"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "gitlab",
  "itertools",
  "lazy_static",
